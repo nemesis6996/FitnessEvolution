@@ -3,10 +3,10 @@ import pandas as pd
 from utils.avatar import get_customized_avatar_html
 
 def show():
-    st.title("My Profile")
+    st.title("Il Mio Profilo")
     
     if not st.session_state.user['logged_in']:
-        st.warning("Please log in to view and edit your profile")
+        st.warning("Effettua il login per visualizzare e modificare il tuo profilo")
         return
     
     # Main layout with columns
@@ -14,7 +14,7 @@ def show():
     
     with col1:
         # Profile information form
-        st.subheader("Personal Information")
+        st.subheader("Informazioni Personali")
         
         # Get existing user data
         user_data = st.session_state.user
@@ -22,40 +22,83 @@ def show():
         # Form for user details
         with st.form("profile_form"):
             # Basic information
-            first_name = st.text_input("First Name", value=user_data.get('first_name', ''))
-            last_name = st.text_input("Last Name", value=user_data.get('last_name', ''))
+            first_name = st.text_input("Nome", value=user_data.get('first_name', ''))
+            last_name = st.text_input("Cognome", value=user_data.get('last_name', ''))
             email = st.text_input("Email", value=user_data.get('email', ''))
             
             # Physical stats
-            st.subheader("Physical Stats")
+            st.subheader("Statistiche Fisiche")
             
             col1, col2, col3 = st.columns(3)
             with col1:
-                height = st.number_input("Height (cm)", min_value=120, max_value=220, value=user_data.get('height', 175))
+                height = st.number_input("Altezza (cm)", min_value=120, max_value=220, value=user_data.get('height', 175))
             
             with col2:
-                weight = st.number_input("Weight (kg)", min_value=30, max_value=200, value=user_data.get('weight', 75))
+                weight = st.number_input("Peso (kg)", min_value=30, max_value=200, value=user_data.get('weight', 75))
             
             with col3:
-                experience_level = st.selectbox(
-                    "Experience Level",
-                    ["Beginner", "Intermediate", "Advanced"],
-                    index=["Beginner", "Intermediate", "Advanced"].index(user_data.get('experience_level', 'Beginner'))
+                # Traduci le opzioni
+                level_map = {
+                    "Principiante": "Beginner",
+                    "Intermedio": "Intermediate", 
+                    "Avanzato": "Advanced"
+                }
+                levels_it = ["Principiante", "Intermedio", "Avanzato"]
+                
+                # Converti il valore attuale in italiano
+                current_level = user_data.get('experience_level', 'Beginner')
+                for it_level, en_level in level_map.items():
+                    if en_level == current_level:
+                        current_it_level = it_level
+                        break
+                else:
+                    current_it_level = "Principiante"
+                
+                selected_it_level = st.selectbox(
+                    "Livello di Esperienza",
+                    levels_it,
+                    index=levels_it.index(current_it_level)
                 )
+                experience_level = level_map[selected_it_level]
             
             # Fitness goals
-            st.subheader("Fitness Goals")
-            goals = st.multiselect(
-                "Select your fitness goals",
-                ["Weight Loss", "Muscle Gain", "Strength", "Endurance", "Flexibility", "General Fitness"],
-                default=user_data.get('goals', ["General Fitness"])
+            st.subheader("Obiettivi di Fitness")
+            
+            # Traduci le opzioni degli obiettivi
+            goals_map = {
+                "Perdita di Peso": "Weight Loss", 
+                "Aumento Massa": "Muscle Gain", 
+                "Forza": "Strength", 
+                "Resistenza": "Endurance", 
+                "Flessibilità": "Flexibility", 
+                "Fitness Generale": "General Fitness"
+            }
+            goals_it = list(goals_map.keys())
+            
+            # Converti i valori attuali in italiano
+            current_goals = user_data.get('goals', ["General Fitness"])
+            current_goals_it = []
+            
+            for en_goal in current_goals:
+                for it_goal, en_goal_map in goals_map.items():
+                    if en_goal_map == en_goal:
+                        current_goals_it.append(it_goal)
+                        break
+            
+            selected_goals_it = st.multiselect(
+                "Seleziona i tuoi obiettivi di fitness",
+                goals_it,
+                default=current_goals_it
             )
             
+            # Converti indietro in inglese per il backend
+            goals = [goals_map[goal_it] for goal_it in selected_goals_it]
+            
             # Additional notes
-            notes = st.text_area("Additional Notes", value=user_data.get('notes', ''))
+            notes = st.text_area("Note Aggiuntive", value=user_data.get('notes', ''))
             
             # Submit button
-            submitted = st.form_submit_button("Save Profile")
+            submitted = st.form_submit_button("Salva Profilo")
             if submitted:
                 # Update session state with new values
                 st.session_state.user.update({
@@ -74,13 +117,13 @@ def show():
     
     with col2:
         # Avatar visualization
-        st.subheader("Your 3D Avatar")
+        st.subheader("Il Tuo Avatar 3D")
         
         # Get customized avatar HTML
         avatar_html = get_customized_avatar_html(st.session_state.user)
         st.markdown(avatar_html, unsafe_allow_html=True)
         
-        st.caption("Avatar visualizes your body based on your stats")
+        st.caption("L'avatar si aggiorna automaticamente in base ai tuoi progressi")
         
         # Profile stats in a card
         st.subheader("Stats Summary")

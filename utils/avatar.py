@@ -38,15 +38,16 @@ def get_avatar_placeholder():
         // Create a group to hold all body parts
         const avatar = new THREE.Group();
         
-        // Material for body parts
-        const bodyMaterial = new THREE.MeshPhongMaterial({
+        // Material for body parts - styling più cartoon/stilizzato
+        const bodyMaterial = new THREE.MeshToonMaterial({
           color: 0xf1c27d,  // Skin tone
-          shininess: 30
+          shininess: 10
         });
         
-        const clothesMaterial = new THREE.MeshPhongMaterial({
-          color: 0x333333,  // Dark gray clothes
-          shininess: 10
+        // Colori più vivaci per un aspetto cartoon
+        const clothesMaterial = new THREE.MeshToonMaterial({
+          color: 0x3498db,  // Blu acceso per i vestiti
+          shininess: 5
         });
         
         // Head
@@ -184,19 +185,19 @@ def update_avatar_measurements(height, weight, measurements=None):
 def get_customized_avatar_html(user_data):
     """
     Returns customized avatar HTML based on user data
-    In a real app, this would generate a more detailed and realistic avatar
+    Genera un avatar stilizzato/cartoonish che si adatta alle misure dell'utente
     """
     # Extract measurements from user data
     height = user_data.get('height', 175)
     weight = user_data.get('weight', 75)
     
-    # In a real app, these would come from the user's profile
+    # Get measurements from user data if available
     measurements = {
-        'chest': 95,
-        'waist': 85,
-        'hips': 100,
-        'arms': 35,
-        'thighs': 55
+        'chest': user_data.get('chest', 95),
+        'waist': user_data.get('waist', 85),
+        'hips': user_data.get('hips', 100),
+        'arms': user_data.get('arms', 35),
+        'thighs': user_data.get('thighs', 55)
     }
     
     # Get avatar parameters
@@ -235,15 +236,16 @@ def get_customized_avatar_html(user_data):
         // Create a group to hold all body parts
         const avatar = new THREE.Group();
         
-        // Material for body parts
-        const bodyMaterial = new THREE.MeshPhongMaterial({{
+        // Material for body parts - avatar cartoonizzato
+        const bodyMaterial = new THREE.MeshToonMaterial({{
           color: 0xf1c27d,  // Skin tone
-          shininess: 30
+          shininess: 10
         }});
         
-        const clothesMaterial = new THREE.MeshPhongMaterial({{
-          color: 0x333333,  // Dark gray clothes
-          shininess: 10
+        // Colori più vivaci per un aspetto cartoon
+        const clothesMaterial = new THREE.MeshToonMaterial({{
+          color: 0x3498db,  // Blu acceso per i vestiti
+          shininess: 5
         }});
         
         // Head - adjusted by head_size parameter
