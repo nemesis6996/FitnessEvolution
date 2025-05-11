@@ -4,6 +4,8 @@ import sys
 from PIL import Image
 import base64
 from io import BytesIO
+import datetime
+import random
 
 # Add the directory to the path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -13,6 +15,8 @@ from utils.database import initialize_database, get_exercise_categories, get_exe
 from utils.ai_helper import get_ai_recommendation
 from utils.avatar import get_avatar_placeholder
 from utils.nemesis_ai import NemesisAI
+from utils.config import load_config, get_supported_languages
+from utils.notifications import setup_notification_system, show_notifications, generate_workout_reminder
 
 # Set page configuration
 st.set_page_config(
@@ -21,6 +25,9 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# Carica la configurazione dell'applicazione
+app_config = load_config()
 
 # Initialize session states if not already done
 if 'user' not in st.session_state:
@@ -39,6 +46,21 @@ if 'workout_plan' not in st.session_state:
 # Aggiungi lo stato della pagina selezionata per gestire la navigazione
 if 'page_selection' not in st.session_state:
     st.session_state.page_selection = "Home"
+    
+# Aggiunge le impostazioni della lingua
+if 'language' not in st.session_state:
+    st.session_state.language = app_config.get('app', {}).get('language', 'it')
+
+# Inizializza il sistema di notifiche
+setup_notification_system()
+
+# Genera una notifica di allenamento casuale se l'utente è loggato (1 volta al giorno)
+if st.session_state.user.get('logged_in') and random.random() < 0.3:  # 30% di probabilità per simulare
+    current_time = datetime.datetime.now()
+    if 'last_notification' not in st.session_state or \
+       (current_time - st.session_state.get('last_notification', current_time)).days >= 1:
+        generate_workout_reminder()
+        st.session_state.last_notification = current_time
 
 # Initialize database on app start
 initialize_database()
@@ -47,6 +69,9 @@ initialize_database()
 with st.sidebar:
     st.image("assets/nemfit_logo.png", width=150)
     st.title("NemFit")
+    
+    # Mostra le notifiche per l'utente
+    show_notifications()
     
     # Login/profile section in sidebar
     if not st.session_state.user['logged_in']:
