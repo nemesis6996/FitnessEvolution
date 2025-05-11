@@ -4,14 +4,14 @@ from utils.database import get_workout_templates, get_workout_exercises, get_wor
 from utils.ai_helper import get_workout_suggestion
 
 def show():
-    st.title("Workout Plans")
+    st.title("Schede di Allenamento")
     
     # Tabs for different sections
-    tab1, tab2, tab3 = st.tabs(["Browse Plans", "Create Custom Plan", "AI Workout Generator"])
+    tab1, tab2, tab3 = st.tabs(["Sfoglia Schede", "Crea Scheda Personalizzata", "Generatore Schede AI"])
     
     # Tab 1: Browse existing workout plans
     with tab1:
-        st.subheader("Pre-made Workout Plans")
+        st.subheader("Schede Predefinite")
         
         # Get all workout templates
         templates = get_workout_templates()
@@ -20,21 +20,37 @@ def show():
         col1, col2 = st.columns(2)
         with col1:
             # Filter by difficulty
-            difficulties = ["All Levels", "Beginner", "Intermediate", "Advanced"]
-            selected_difficulty = st.selectbox(
-                "Filter by difficulty",
-                difficulties,
+            difficulty_map = {
+                "Tutti i Livelli": "All Levels", 
+                "Principiante": "Beginner", 
+                "Intermedio": "Intermediate", 
+                "Avanzato": "Advanced"
+            }
+            it_difficulties = ["Tutti i Livelli", "Principiante", "Intermedio", "Avanzato"]
+            selected_it_difficulty = st.selectbox(
+                "Filtra per difficoltà",
+                it_difficulties,
                 key="browse_difficulty"
             )
+            selected_difficulty = difficulty_map[selected_it_difficulty]
         
         with col2:
             # Filter by goal
-            goals = ["All Goals", "Strength", "Cardio", "Weight Loss", "Muscle Gain", "Core Strength"]
-            selected_goal = st.selectbox(
-                "Filter by goal",
-                goals,
+            goal_map = {
+                "Tutti gli Obiettivi": "All Goals", 
+                "Forza": "Strength", 
+                "Cardio": "Cardio", 
+                "Perdita Peso": "Weight Loss", 
+                "Aumento Massa": "Muscle Gain", 
+                "Core": "Core Strength"
+            }
+            it_goals = ["Tutti gli Obiettivi", "Forza", "Cardio", "Perdita Peso", "Aumento Massa", "Core"]
+            selected_it_goal = st.selectbox(
+                "Filtra per obiettivo",
+                it_goals,
                 key="browse_goal"
             )
+            selected_goal = goal_map[selected_it_goal]
         
         # Apply filters
         filtered_templates = templates
@@ -46,40 +62,48 @@ def show():
         
         # Display workouts in a grid
         if not filtered_templates:
-            st.info("No workout plans match your filters. Try adjusting your criteria.")
+            st.info("Nessuna scheda corrisponde ai tuoi filtri. Prova a modificare i criteri.")
         else:
-            st.write(f"{len(filtered_templates)} workout plans found")
+            st.write(f"{len(filtered_templates)} schede trovate")
             
             for template in filtered_templates:
+                # Traduciamo i nomi delle schede per la visualizzazione
+                difficulty_it = {"Beginner": "Principiante", "Intermediate": "Intermedio", "Advanced": "Avanzato"}
+                difficulty_display = difficulty_it.get(template['difficulty'], template['difficulty'])
+                
+                # Traduciamo gli obiettivi per la visualizzazione
+                goal_it_rev = {v: k for k, v in goal_map.items() if v != "All Goals"}
+                goal_display = goal_it_rev.get(template['goal'], template['goal'])
+                
                 with st.expander(f"**{template['name']}**", expanded=False):
-                    st.write(f"**Difficulty:** {template['difficulty']}")
-                    st.write(f"**Duration:** {template['duration']} minutes")
-                    st.write(f"**Goal:** {template['goal']}")
-                    st.write(f"**Description:** {template['description']}")
+                    st.write(f"**Difficoltà:** {difficulty_display}")
+                    st.write(f"**Durata:** {template['duration']} minuti")
+                    st.write(f"**Obiettivo:** {goal_display}")
+                    st.write(f"**Descrizione:** {template['description']}")
                     
                     # Get exercises for this workout
                     exercises = get_workout_exercises(template['id'])
                     
                     # Display exercises in a table
-                    st.subheader("Exercises")
+                    st.subheader("Esercizi")
                     for i, exercise in enumerate(exercises, 1):
                         cols = st.columns([4, 1, 1, 2])
                         with cols[0]:
                             st.write(f"**{i}. {exercise['exercise_name']}**")
                         with cols[1]:
-                            st.write(f"{exercise['sets']} sets")
+                            st.write(f"{exercise['sets']} serie")
                         with cols[2]:
-                            st.write(f"{exercise['reps']}")
+                            st.write(f"{exercise['reps']} ripetizioni")
                         with cols[3]:
-                            st.write(f"Rest: {exercise['rest_time']}s")
+                            st.write(f"Riposo: {exercise['rest_time']}s")
                     
                     # Add to My Workouts button
-                    if st.button("Add to My Workouts", key=f"add_workout_{template['id']}"):
+                    if st.button("Aggiungi alle Mie Schede", key=f"add_workout_{template['id']}"):
                         if st.session_state.user['logged_in']:
                             # In a real app, this would save to the database
-                            st.success(f"Added {template['name']} to your workouts!")
+                            st.success(f"{template['name']} aggiunta alle tue schede!")
                         else:
-                            st.warning("Please log in to save workouts")
+                            st.warning("Effettua il login per salvare le schede")
     
     # Tab 2: Custom workout builder
     with tab2:

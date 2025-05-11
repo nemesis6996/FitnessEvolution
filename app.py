@@ -35,6 +35,10 @@ if 'user' not in st.session_state:
 
 if 'workout_plan' not in st.session_state:
     st.session_state.workout_plan = []
+    
+# Aggiungi lo stato della pagina selezionata per gestire la navigazione
+if 'page_selection' not in st.session_state:
+    st.session_state.page_selection = "Home"
 
 # Initialize database on app start
 initialize_database()
@@ -91,11 +95,21 @@ with st.sidebar:
     
     # Main navigation
     st.subheader("Menu")
+    # Usa la selezione della pagina dallo stato della sessione
+    page_options = ["Home", "Esercizi", "Schede Allenamento", "Profilo", "Progressi", "Nemesis AI", "Pannello Admin"]
+    index = page_options.index(st.session_state.page_selection) if st.session_state.page_selection in page_options else 0
+    
     selected = st.radio(
         "Vai a",
-        ["Home", "Esercizi", "Schede Allenamento", "Profilo", "Progressi", "Nemesis AI", "Pannello Admin"],
-        index=0
+        page_options,
+        index=index,
+        key="navigation"
     )
+    
+    # Aggiorna la selezione della pagina nello stato della sessione
+    if selected != st.session_state.page_selection:
+        st.session_state.page_selection = selected
+        st.rerun()
 
 # Main content based on selection
 if selected == "Home":
@@ -187,6 +201,8 @@ if selected == "Home":
                 st.write(sample['short_description'])
                 if st.button(f"Esplora {it_category}", key=f"cat_{i}"):
                     st.session_state.selected_category = category
+                    # Cambia la selezione a "Esercizi" per navigare alla pagina esercizi
+                    st.session_state.page_selection = "Esercizi"
                     st.rerun()
     
     # Testimonials
