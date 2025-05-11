@@ -12,6 +12,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from utils.database import initialize_database, get_exercise_categories, get_exercises_by_category
 from utils.ai_helper import get_ai_recommendation
 from utils.avatar import get_avatar_placeholder
+from utils.nemesis_ai import NemesisAI
 
 # Set page configuration
 st.set_page_config(
@@ -63,6 +64,22 @@ with st.sidebar:
         with col2:
             if st.button("Registrati"):
                 st.info("La funzionalità di registrazione sarà disponibile nella versione completa")
+        
+        # Social login options
+        st.divider()
+        st.write("Oppure accedi con:")
+        social_col1, social_col2 = st.columns(2)
+        with social_col1:
+            if st.button("Google", key="google_login"):
+                st.session_state.user['logged_in'] = True
+                st.session_state.user['username'] = "Utente Google"
+                st.rerun()
+        
+        with social_col2:
+            if st.button("Apple ID", key="apple_login"):
+                st.session_state.user['logged_in'] = True
+                st.session_state.user['username'] = "Utente Apple"
+                st.rerun()
     
     else:
         st.success(f"Benvenuto, {st.session_state.user['username']}")
@@ -76,7 +93,7 @@ with st.sidebar:
     st.subheader("Menu")
     selected = st.radio(
         "Vai a",
-        ["Home", "Esercizi", "Schede Allenamento", "Profilo", "Progressi", "Pannello Admin"],
+        ["Home", "Esercizi", "Schede Allenamento", "Profilo", "Progressi", "Nemesis AI", "Pannello Admin"],
         index=0
     )
 
@@ -219,6 +236,10 @@ elif selected == "Profilo":
 elif selected == "Progressi":
     import pages.progress
     pages.progress.show()
+
+elif selected == "Nemesis AI":
+    import pages.nemesis
+    pages.nemesis.show()
 
 elif selected == "Pannello Admin":
     import pages.admin

@@ -3,24 +3,52 @@ import pandas as pd
 from utils.database import get_exercise_categories, get_exercises_by_category, get_all_exercises
 
 def show():
-    st.title("Exercise Database")
+    st.title("Database Esercizi")
     
     # Search box
-    search_query = st.text_input("Search exercises", placeholder="Enter exercise name, muscle group, or equipment")
+    search_query = st.text_input("Cerca esercizi", placeholder="Inserisci nome esercizio, gruppo muscolare o attrezzo")
     
     # Category filter
     categories = get_exercise_categories()
-    selected_category = st.selectbox(
-        "Filter by category",
-        ["All Categories"] + categories
+    category_names = {
+        "Strength": "Forza",
+        "Cardio": "Cardio",
+        "Flexibility": "Flessibilità",
+        "Functional": "Funzionale",
+        "Balance": "Equilibrio",
+        "Core": "Core"
+    }
+    
+    italian_categories = ["Tutte le Categorie"] + [category_names.get(cat, cat) for cat in categories]
+    selected_italian_category = st.selectbox(
+        "Filtra per categoria",
+        italian_categories
     )
     
+    # Map back to English for database query
+    if selected_italian_category == "Tutte le Categorie":
+        selected_category = "All Categories"
+    else:
+        # Find the English key for the selected Italian value
+        selected_category = next((key for key, value in category_names.items() 
+                                if value == selected_italian_category), selected_italian_category)
+    
     # Difficulty filter
-    difficulties = ["All Levels", "Beginner", "Intermediate", "Advanced"]
-    selected_difficulty = st.selectbox(
-        "Filter by difficulty",
-        difficulties
+    difficulties_map = {
+        "Tutti i Livelli": "All Levels",
+        "Principiante": "Beginner",
+        "Intermedio": "Intermediate",
+        "Avanzato": "Advanced"
+    }
+    
+    italian_difficulties = ["Tutti i Livelli", "Principiante", "Intermedio", "Avanzato"]
+    selected_italian_difficulty = st.selectbox(
+        "Filtra per difficoltà",
+        italian_difficulties
     )
+    
+    # Map back to English
+    selected_difficulty = difficulties_map[selected_italian_difficulty]
     
     # Get exercises based on filters
     if selected_category == "All Categories":
@@ -49,11 +77,11 @@ def show():
         exercises = filtered_exercises
     
     # Display number of exercises found
-    st.write(f"{len(exercises)} exercises found")
+    st.write(f"{len(exercises)} esercizi trovati")
     
     # Display exercises
     if not exercises:
-        st.info("No exercises match your criteria. Try adjusting your filters.")
+        st.info("Nessun esercizio corrisponde ai tuoi criteri. Prova a modificare i filtri.")
     else:
         # Display exercises in a grid layout
         cols_per_row = 2
@@ -70,16 +98,20 @@ def show():
                             if exercise.get('image_url'):
                                 st.image(exercise['image_url'], use_column_width=True)
                             
-                            st.markdown(f"**Difficulty:** {exercise.get('difficulty', 'Not specified')}")
-                            st.markdown(f"**Category:** {exercise.get('category_name', 'Not categorized')}")
-                            st.markdown(f"**Equipment:** {exercise.get('equipment', 'None required')}")
-                            st.markdown(f"**Muscles:** {exercise.get('muscles_targeted', 'Not specified')}")
+                            difficulty_it = {"Beginner": "Principiante", "Intermediate": "Intermedio", "Advanced": "Avanzato"}
+                            st.markdown(f"**Difficoltà:** {difficulty_it.get(exercise.get('difficulty'), exercise.get('difficulty', 'Non specificato'))}")
                             
-                            st.markdown("### Description")
-                            st.write(exercise.get('description', 'No description available.'))
+                            category_it = category_names.get(exercise.get('category_name', ''), exercise.get('category_name', ''))
+                            st.markdown(f"**Categoria:** {category_it or 'Non categorizzato'}")
                             
-                            st.markdown("### Instructions")
-                            instructions = exercise.get('instructions', 'No instructions available.')
+                            st.markdown(f"**Attrezzi:** {exercise.get('equipment', 'Nessuno richiesto')}")
+                            st.markdown(f"**Muscoli:** {exercise.get('muscles_targeted', 'Non specificato')}")
+                            
+                            st.markdown("### Descrizione")
+                            st.write(exercise.get('description', 'Nessuna descrizione disponibile.'))
+                            
+                            st.markdown("### Istruzioni")
+                            instructions = exercise.get('instructions', 'Nessuna istruzione disponibile.')
                             # Split instructions by newlines and format as a numbered list
                             if '\n' in instructions:
                                 inst_list = instructions.split('\n')
@@ -90,11 +122,11 @@ def show():
                                 st.write(instructions)
                             
                             if exercise.get('tips'):
-                                st.markdown("### Tips")
+                                st.markdown("### Consigli")
                                 st.write(exercise.get('tips'))
                             
                             # Add to Workout button
-                            if st.button("Add to Workout", key=f"add_{exercise['id']}"):
+                            if st.button("Aggiungi alla Scheda", key=f"add_{exercise['id']}"):
                                 if 'workout_builder' not in st.session_state:
                                     st.session_state.workout_builder = []
                                 
@@ -102,23 +134,27 @@ def show():
                                 existing_ids = [ex['id'] for ex in st.session_state.workout_builder]
                                 if exercise['id'] not in existing_ids:
                                     st.session_state.workout_builder.append(exercise)
-                                    st.success(f"{exercise['name']} added to workout builder")
+                                    st.success(f"{exercise['name']} aggiunto alla tua scheda")
                                 else:
-                                    st.info(f"{exercise['name']} is already in your workout")
+                                    st.info(f"{exercise['name']} è già nella tua scheda")
     
     # Workout Builder section
     if 'workout_builder' in st.session_state and st.session_state.workout_builder:
         st.divider()
-        st.subheader("Workout Builder")
-        st.write(f"{len(st.session_state.workout_builder)} exercises in your workout")
+        st.subheader("Costruttore Scheda")
+        st.write(f"{len(st.session_state.workout_builder)} esercizi nella tua scheda")
         
         # Display selected exercises in a table
         workout_data = []
         for ex in st.session_state.workout_builder:
+            category_it = category_names.get(ex.get('category_name', ''), ex.get('category_name', ''))
+            difficulty_it = {"Beginner": "Principiante", "Intermediate": "Intermedio", "Advanced": "Avanzato"}
+            difficulty_translated = difficulty_it.get(ex.get('difficulty', ''), ex.get('difficulty', ''))
+            
             workout_data.append({
                 "Exercise": ex['name'],
-                "Category": ex.get('category_name', ''),
-                "Difficulty": ex.get('difficulty', ''),
+                "Category": category_it,
+                "Difficulty": difficulty_translated,
                 "Remove": ex['id']
             })
         
@@ -143,13 +179,13 @@ def show():
         # Buttons for workout actions
         col1, col2 = st.columns(2)
         with col1:
-            if st.button("Save Workout"):
+            if st.button("Salva Scheda"):
                 if st.session_state.user['logged_in']:
-                    st.info("Save functionality would save this workout to your account")
+                    st.info("La funzionalità di salvataggio aggiungerà questa scheda al tuo account")
                 else:
-                    st.warning("Please log in to save workouts")
+                    st.warning("Effettua il login per salvare le schede")
         
         with col2:
-            if st.button("Clear Workout"):
+            if st.button("Cancella Scheda"):
                 st.session_state.workout_builder = []
                 st.rerun()
