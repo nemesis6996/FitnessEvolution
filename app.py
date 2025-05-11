@@ -15,7 +15,7 @@ from utils.avatar import get_avatar_placeholder
 
 # Set page configuration
 st.set_page_config(
-    page_title="NF Fitness App",
+    page_title="NemFit App",
     page_icon="💪",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -40,8 +40,8 @@ initialize_database()
 
 # Sidebar for navigation
 with st.sidebar:
-    st.image("assets/logo.svg", width=150)
-    st.title("NF Fitness")
+    st.image("assets/nemfit_logo.png", width=150)
+    st.title("NemFit")
     
     # Login/profile section in sidebar
     if not st.session_state.user['logged_in']:
@@ -58,14 +58,14 @@ with st.sidebar:
                     st.session_state.user['username'] = username
                     st.rerun()
                 else:
-                    st.error("Please enter username and password")
+                    st.error("Inserisci username e password")
         
         with col2:
-            if st.button("Sign Up"):
-                st.info("Sign up functionality would be implemented in a production app")
+            if st.button("Registrati"):
+                st.info("La funzionalità di registrazione sarà disponibile nella versione completa")
     
     else:
-        st.success(f"Logged in as {st.session_state.user['username']}")
+        st.success(f"Benvenuto, {st.session_state.user['username']}")
         if st.button("Logout"):
             st.session_state.user['logged_in'] = False
             st.rerun()
@@ -73,144 +73,154 @@ with st.sidebar:
     st.divider()
     
     # Main navigation
-    st.subheader("Navigation")
+    st.subheader("Menu")
     selected = st.radio(
-        "Go to",
-        ["Home", "Exercises", "Workout Plans", "My Profile", "Progress Tracking", "Admin Panel"],
+        "Vai a",
+        ["Home", "Esercizi", "Schede Allenamento", "Profilo", "Progressi", "Pannello Admin"],
         index=0
     )
 
 # Main content based on selection
 if selected == "Home":
-    st.title("Welcome to NF Fitness")
+    st.title("Benvenuto in NemFit")
     
     # Main columns for home page
     col1, col2 = st.columns([2, 1])
     
     with col1:
         st.markdown("""
-        ## AI-Powered Fitness Coach
+        ## Il tuo Coach Fitness con Intelligenza Artificiale
         
-        NF Fitness helps you achieve your fitness goals with:
+        NemFit ti aiuta a raggiungere i tuoi obiettivi di fitness con:
         
-        - **Comprehensive Exercise Database** - Detailed instructions and visual guides
-        - **Smart Workout Plans** - Personalized for your goals
-        - **3D Avatar Visualization** - Track your body transformation
-        - **AI Recommendations** - Get personalized advice
+        - **Database Completo di Esercizi** - Istruzioni dettagliate e guide visive
+        - **Schede di Allenamento Intelligenti** - Personalizzate per i tuoi obiettivi
+        - **Visualizzazione Avatar 3D** - Monitora la trasformazione del tuo corpo
+        - **Raccomandazioni AI** - Ottieni consigli personalizzati
+        - **Body Scan** - Crea un avatar realistico con le tue foto
         
-        Get started by exploring exercises or creating a workout plan!
+        Inizia esplorando gli esercizi o creando una scheda di allenamento!
         """)
         
         # Featured workout section
-        st.subheader("Featured Workout Plan")
+        st.subheader("Scheda in Evidenza")
         featured_workout = {
-            "name": "Full Body Strength",
-            "difficulty": "Intermediate",
-            "duration": "45 minutes",
-            "exercises": ["Barbell Squat", "Bench Press", "Deadlift", "Pull-ups", "Overhead Press"]
+            "name": "Forza Corpo Completo",
+            "difficulty": "Intermedio",
+            "duration": "45 minuti",
+            "exercises": ["Squat con Bilanciere", "Panca Piana", "Stacco da Terra", "Trazioni", "Shoulder Press"]
         }
         
-        with st.expander("Full Body Strength Workout", expanded=True):
-            st.write(f"**Difficulty:** {featured_workout['difficulty']}")
-            st.write(f"**Duration:** {featured_workout['duration']}")
-            st.write("**Exercises:**")
+        with st.expander("Scheda Forza Corpo Completo", expanded=True):
+            st.write(f"**Difficoltà:** {featured_workout['difficulty']}")
+            st.write(f"**Durata:** {featured_workout['duration']}")
+            st.write("**Esercizi:**")
             for exercise in featured_workout['exercises']:
                 st.write(f"- {exercise}")
             
-            if st.button("Add to My Workouts"):
+            if st.button("Aggiungi alle Mie Schede"):
                 if st.session_state.user['logged_in']:
                     st.session_state.workout_plan.append(featured_workout)
-                    st.success("Workout added to your plan!")
+                    st.success("Scheda aggiunta al tuo piano!")
                 else:
-                    st.warning("Please log in to save workouts")
+                    st.warning("Effettua il login per salvare le schede")
     
     with col2:
         # Avatar preview
-        st.subheader("Your Avatar")
+        st.subheader("Il Tuo Avatar")
         
         if st.session_state.user['logged_in']:
             st.markdown(get_avatar_placeholder(), unsafe_allow_html=True)
-            st.caption("Avatar updates as you progress")
+            st.caption("L'avatar si aggiorna con i tuoi progressi")
         else:
-            st.info("Log in to see your fitness avatar")
+            st.info("Effettua il login per vedere il tuo avatar fitness")
         
         # AI recommendation section
-        st.subheader("AI Recommendation")
+        st.subheader("Consiglio AI")
         if st.session_state.user['logged_in']:
-            with st.spinner("Getting personalized recommendations..."):
+            with st.spinner("Ottenendo raccomandazioni personalizzate..."):
                 recommendation = get_ai_recommendation(st.session_state.user)
                 st.info(recommendation)
         else:
-            st.info("Log in to get personalized AI recommendations")
+            st.info("Effettua il login per ricevere consigli personalizzati dall'AI")
     
     # Featured exercise categories
-    st.subheader("Explore Exercise Categories")
+    st.subheader("Esplora Categorie di Esercizi")
     categories = get_exercise_categories()
     
     # Display categories in a grid
     cols = st.columns(3)
     for i, category in enumerate(categories[:6]):  # Show first 6 categories
         with cols[i % 3]:
-            st.markdown(f"### {category}")
+            category_names = {
+                "Strength": "Forza",
+                "Cardio": "Cardio",
+                "Flexibility": "Flessibilità",
+                "Functional": "Funzionale",
+                "Balance": "Equilibrio",
+                "Core": "Core"
+            }
+            it_category = category_names.get(category, category)
+            st.markdown(f"### {it_category}")
             # Show a sample exercise from this category
             exercises = get_exercises_by_category(category)
             if exercises:
                 sample = exercises[0]
                 st.write(f"**{sample['name']}**")
                 st.write(sample['short_description'])
-                if st.button(f"Explore {category}", key=f"cat_{i}"):
+                if st.button(f"Esplora {it_category}", key=f"cat_{i}"):
                     st.session_state.selected_category = category
                     st.rerun()
     
     # Testimonials
     st.divider()
-    st.subheader("User Success Stories")
+    st.subheader("Storie di Successo")
     
     cols = st.columns(3)
     with cols[0]:
         st.markdown("""
-        #### "Lost 15kg in 3 months"
+        #### "Ho perso 15kg in 3 mesi"
         
-        The custom workout plans and progress tracking helped me stay motivated.
+        Le schede personalizzate e il monitoraggio dei progressi mi hanno aiutato a rimanere motivato.
         
-        *- Alex M.*
+        *- Alessandro M.*
         """)
     
     with cols[1]:
         st.markdown("""
-        #### "Finally building muscle"
+        #### "Finalmente sto sviluppando muscoli"
         
-        The exercise instructions and form guidelines were game-changing for my technique.
+        Le istruzioni degli esercizi e le linee guida sulla forma hanno rivoluzionato la mia tecnica.
         
-        *- Jamie K.*
+        *- Giacomo K.*
         """)
     
     with cols[2]:
         st.markdown("""
-        #### "Perfect for beginners"
+        #### "Perfetto per principianti"
         
-        The AI coach answered all my questions and kept me on track.
+        Il coach AI ha risposto a tutte le mie domande e mi ha tenuto in carreggiata.
         
-        *- Taylor S.*
+        *- Marco S.*
         """)
 
-elif selected == "Exercises":
+elif selected == "Esercizi":
     import pages.exercises
     pages.exercises.show()
 
-elif selected == "Workout Plans":
+elif selected == "Schede Allenamento":
     import pages.workout_plans
     pages.workout_plans.show()
 
-elif selected == "My Profile":
+elif selected == "Profilo":
     import pages.profile
     pages.profile.show()
 
-elif selected == "Progress Tracking":
+elif selected == "Progressi":
     import pages.progress
     pages.progress.show()
 
-elif selected == "Admin Panel":
+elif selected == "Pannello Admin":
     import pages.admin
     pages.admin.show()
 
