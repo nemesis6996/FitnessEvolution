@@ -126,7 +126,7 @@ def show():
         st.caption("L'avatar si aggiorna automaticamente in base ai tuoi progressi")
         
         # Profile stats in a card
-        st.subheader("Stats Summary")
+        st.subheader("Riepilogo Statistiche")
         
         if 'height' in st.session_state.user and 'weight' in st.session_state.user:
             # Calculate BMI
@@ -136,58 +136,88 @@ def show():
             # Display stats
             st.metric("BMI", f"{bmi:.1f}")
             
-            # BMI category
+            # BMI category tradotto in italiano
             bmi_category = ""
             if bmi < 18.5:
-                bmi_category = "Underweight"
+                bmi_category = "Sottopeso"
             elif bmi < 25:
-                bmi_category = "Normal weight"
+                bmi_category = "Peso normale"
             elif bmi < 30:
-                bmi_category = "Overweight"
+                bmi_category = "Sovrappeso"
             else:
-                bmi_category = "Obesity"
+                bmi_category = "Obesità"
             
-            st.info(f"BMI Category: {bmi_category}")
+            st.info(f"Categoria BMI: {bmi_category}")
         
-        # Display goals
+        # Display goals in italiano
         if 'goals' in st.session_state.user and st.session_state.user['goals']:
-            st.write("**Your Goals:**")
+            st.write("**I Tuoi Obiettivi:**")
+            
+            # Mappa per tradurre gli obiettivi in italiano
+            goal_map_rev = {
+                "Weight Loss": "Perdita di Peso",
+                "Muscle Gain": "Aumento Massa", 
+                "Strength": "Forza", 
+                "Endurance": "Resistenza", 
+                "Flexibility": "Flessibilità", 
+                "General Fitness": "Fitness Generale"
+            }
+            
             for goal in st.session_state.user['goals']:
-                st.write(f"- {goal}")
+                # Mostra l'obiettivo tradotto in italiano se disponibile
+                display_goal = goal_map_rev.get(goal, goal)
+                st.write(f"- {display_goal}")
     
     # Body measurements section
     st.divider()
-    st.subheader("Body Measurements")
+    st.subheader("Misure Corporee")
     
     # Tabs for different measurement options
-    tab1, tab2 = st.tabs(["Enter Measurements", "Measurement History"])
+    tab1, tab2 = st.tabs(["Inserisci Misure", "Storico Misurazioni"])
     
     with tab1:
         # Form for entering measurements
         with st.form("measurements_form"):
-            st.write("Enter your current body measurements")
+            st.write("Inserisci le tue misure corporee attuali")
             
             col1, col2, col3 = st.columns(3)
             
             with col1:
-                chest = st.number_input("Chest (cm)", min_value=50, max_value=150, value=95)
-                arms = st.number_input("Arms (cm)", min_value=20, max_value=60, value=35)
+                chest = st.number_input("Petto (cm)", min_value=50, max_value=150, value=95)
+                arms = st.number_input("Braccia (cm)", min_value=20, max_value=60, value=35)
             
             with col2:
-                waist = st.number_input("Waist (cm)", min_value=50, max_value=150, value=85)
-                thighs = st.number_input("Thighs (cm)", min_value=30, max_value=100, value=55)
+                waist = st.number_input("Vita (cm)", min_value=50, max_value=150, value=85)
+                thighs = st.number_input("Cosce (cm)", min_value=30, max_value=100, value=55)
             
             with col3:
-                hips = st.number_input("Hips (cm)", min_value=50, max_value=150, value=100)
-                body_fat = st.number_input("Body Fat (%)", min_value=3.0, max_value=50.0, value=15.0)
+                hips = st.number_input("Fianchi (cm)", min_value=50, max_value=150, value=100)
+                body_fat = st.number_input("Grasso Corporeo (%)", min_value=3.0, max_value=50.0, value=15.0)
             
-            measurement_notes = st.text_area("Notes", placeholder="Any additional notes about your measurements")
+            measurement_notes = st.text_area("Note", placeholder="Note aggiuntive sulle tue misurazioni")
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                ai_assist = st.checkbox("Utilizza l'IA per analizzare le foto caricate", value=True)
+                if ai_assist:
+                    st.info("L'IA analizzerà le foto che hai caricato per migliorare l'accuratezza delle misurazioni")
             
             # Submit button
-            submitted = st.form_submit_button("Save Measurements")
+            submitted = st.form_submit_button("Salva Misurazioni")
             if submitted:
                 # In a real app, this would save to the database
-                st.success("Measurements saved successfully!")
+                st.success("Misurazioni salvate con successo!")
+                
+                # Aggiunge un messaggio divertente/motivazionale
+                import random
+                messages = [
+                    "🏋️‍♂️ Nemesis dice: 'Stai andando alla grande! Non dimenticare l'allenamento di oggi!'",
+                    "💪 Nemesis dice: 'Vedo progressi! Continuiamo a spingere!'",
+                    "🥦 Nemesis dice: 'Ricordati di bere acqua e mangiare verdure... e poi altri 20 push-up!'",
+                    "🏃‍♀️ Nemesis dice: 'Niente scuse oggi! Ti aspetto per l'allenamento gambe!'",
+                    "🔥 Nemesis dice: 'Questi numeri sono buoni, ma possiamo migliorarli! Pronto per un'altra sfida?'"
+                ]
+                st.info(random.choice(messages))
                 
                 # Update session state for demo
                 if 'measurements' not in st.session_state:
@@ -226,22 +256,74 @@ def show():
     
     # Avatar customization section
     st.divider()
-    st.subheader("Avatar Customization")
+    st.subheader("Personalizzazione Avatar con IA")
     
-    st.info("In a complete mobile app version, this section would allow detailed body scanning and avatar customization.")
+    # Aggiungi la funzionalità di caricamento foto/video e analisi IA
+    st.markdown("""
+    <div style="background-color:#f0f9ff; padding:15px; border-radius:10px; margin-bottom:20px;">
+    <h4 style="color:#0072b1;">Crea il tuo avatar con l'assistenza dell'IA 🤖</h4>
+    <p>Carica le tue foto o un breve video per creare un avatar personalizzato che si aggiorna con i tuoi progressi.</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    tab1, tab2 = st.tabs(["Carica Foto", "Registra Video"])
+    
+    with tab1:
+        col1, col2 = st.columns([2,1])
+        with col1:
+            st.write("**Carica le tue foto:**")
+            st.file_uploader("Foto frontale", type=["jpg", "jpeg", "png"], key="front_photo")
+            st.file_uploader("Foto laterale", type=["jpg", "jpeg", "png"], key="side_photo")
+            
+            if st.button("Genera Avatar con IA", key="generate_avatar_photo"):
+                # Placeholder per la funzionalità reale di generazione avatar
+                with st.spinner("L'IA sta analizzando le tue foto e creando il tuo avatar personalizzato..."):
+                    # Simulazione breve attesa
+                    import time
+                    time.sleep(2)
+                    st.success("Avatar generato con successo! L'avatar si aggiornerà automaticamente con i tuoi progressi.")
+                    
+                    # Aggiungiamo un messaggio divertente
+                    st.info("🏋️‍♂️ Nemesis dice: 'Ho analizzato il tuo fisico, ora è il momento di farti sudare! Sei pronto per una nuova sfida?'")
+        
+        with col2:
+            st.write("**Suggerimenti:**")
+            st.markdown("""
+            - Indossa abiti aderenti
+            - Scatta foto con buona illuminazione
+            - Mantieni una postura neutra
+            - Usa uno sfondo semplice
+            """)
+    
+    with tab2:
+        st.write("**Registra un breve video a 360°:**")
+        st.file_uploader("Carica video", type=["mp4", "mov"], key="body_video")
+        
+        st.write("Oppure registra direttamente dalla webcam:")
+        if st.button("Inizia registrazione", key="start_recording"):
+            st.info("Questa funzionalità richiede l'accesso alla fotocamera. Nell'app mobile, questa opzione ti permetterà di registrare un breve video a 360° per un'analisi completa.")
+        
+        st.write("**Vantaggi dell'analisi video:**")
+        st.markdown("""
+        - Maggiore precisione nelle misurazioni
+        - Rilevamento automatico della postura
+        - Suggerimenti personalizzati per il tuo allenamento
+        - Aggiornamento più accurato dell'avatar
+        """)
+    
+    # Sezione per le opzioni di personalizzazione
+    st.subheader("Opzioni di Personalizzazione")
     
     col1, col2 = st.columns(2)
     
     with col1:
-        st.write("**Body Scanning Options:**")
-        st.write("- Front-facing photo upload")
-        st.write("- Side profile photo upload")
-        st.write("- Manual measurement input")
-        st.write("- AI-assisted body analysis")
+        st.write("**Personalizza il tuo avatar:**")
+        st.color_picker("Colore abiti", "#3498db", key="clothes_color")
+        st.selectbox("Stile capelli", ["Corto", "Medio", "Lungo", "Calvo"], key="hair_style")
+        st.slider("Altezza muscoli", 1, 10, 5, key="muscle_definition")
     
     with col2:
-        st.write("**Customization Options:**")
-        st.write("- Skin tone")
-        st.write("- Hair style and color")
-        st.write("- Clothing and accessories")
-        st.write("- Facial features")
+        st.write("**Impostazioni avanzate:**")
+        st.checkbox("Mostra progressi muscolari", value=True, key="show_muscle_progress")
+        st.checkbox("Evidenzia aree da allenare", value=True, key="highlight_training_areas")
+        st.checkbox("Usa rendering avanzato", value=True, key="use_advanced_rendering")

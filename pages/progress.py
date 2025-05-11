@@ -7,10 +7,10 @@ import random
 from utils.database import get_user_progress
 
 def show():
-    st.title("Progress Tracking")
+    st.title("Monitoraggio Progressi")
     
     if not st.session_state.user['logged_in']:
-        st.warning("Please log in to track your progress")
+        st.warning("Effettua il login per monitorare i tuoi progressi")
         return
     
     # Get progress data
@@ -68,7 +68,7 @@ def show():
     df = pd.DataFrame(st.session_state.measurements)
     
     # Progress summary cards
-    st.subheader("Summary")
+    st.subheader("Riepilogo")
     
     if not df.empty:
         # Calculate changes
@@ -80,39 +80,61 @@ def show():
         
         with col1:
             weight_change = last_entry['weight'] - first_entry['weight']
-            st.metric("Weight", f"{last_entry['weight']} kg", f"{weight_change:.1f} kg")
+            st.metric("Peso", f"{last_entry['weight']} kg", f"{weight_change:.1f} kg")
         
         with col2:
             bf_change = last_entry['body_fat'] - first_entry['body_fat']
-            st.metric("Body Fat", f"{last_entry['body_fat']}%", f"{bf_change:.1f}%")
+            st.metric("Grasso Corporeo", f"{last_entry['body_fat']}%", f"{bf_change:.1f}%")
         
         with col3:
             chest_change = last_entry['chest'] - first_entry['chest']
-            st.metric("Chest", f"{last_entry['chest']} cm", f"{chest_change:.1f} cm")
+            st.metric("Petto", f"{last_entry['chest']} cm", f"{chest_change:.1f} cm")
         
         with col4:
             arm_change = last_entry['arms'] - first_entry['arms']
-            st.metric("Arms", f"{last_entry['arms']} cm", f"{arm_change:.1f} cm")
+            st.metric("Braccia", f"{last_entry['arms']} cm", f"{arm_change:.1f} cm")
     
     # Main tabs for different progress views
-    tab1, tab2, tab3 = st.tabs(["Charts", "Measurements", "Workout History"])
+    tab1, tab2, tab3 = st.tabs(["Grafici", "Misurazioni", "Storico Allenamenti"])
     
     with tab1:
         # Progress charts using Plotly
-        st.subheader("Progress Charts")
+        st.subheader("Grafici Progressi")
         
         if df.empty:
-            st.info("No progress data available. Add measurements to see your progress.")
+            st.info("Nessun dato di progresso disponibile. Aggiungi misurazioni per vedere i tuoi progressi.")
         else:
             # Convert date column to datetime
             df['date'] = pd.to_datetime(df['date'])
             
+            # Mapping per tradurre i nomi delle metriche
+            metrics_map = {
+                "peso": "weight", 
+                "grasso_corporeo": "body_fat", 
+                "petto": "chest", 
+                "vita": "waist", 
+                "fianchi": "hips", 
+                "braccia": "arms", 
+                "cosce": "thighs"
+            }
+            
+            # Traduciamo le opzioni del menu
+            it_metrics = ["peso", "grasso_corporeo", "petto", "vita", "fianchi", "braccia", "cosce"]
+            display_metrics = ["Peso", "Grasso Corporeo", "Petto", "Vita", "Fianchi", "Braccia", "Cosce"]
+            
+            # Crea un dizionario per la visualizzazione
+            metrics_display = {metrics_map[m]: d for m, d in zip(it_metrics, display_metrics)}
+            
             # Select which metrics to show
-            metrics = st.multiselect(
-                "Select metrics to display",
-                ["weight", "body_fat", "chest", "waist", "hips", "arms", "thighs"],
-                default=["weight", "body_fat"]
+            selected_it_metrics = st.multiselect(
+                "Seleziona metriche da visualizzare",
+                display_metrics,
+                default=["Peso", "Grasso Corporeo"]
             )
+            
+            # Converti le metriche selezionate in italiano nei corrispondenti valori inglesi
+            display_to_original = {d: metrics_map[m] for m, d in zip(it_metrics, display_metrics)}
+            metrics = [display_to_original[m] for m in selected_it_metrics]
             
             if metrics:
                 # Line chart for selected metrics
