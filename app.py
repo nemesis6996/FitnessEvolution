@@ -226,4 +226,4 @@ elif selected == "Pannello Admin":
 
 # Footer
 st.divider()
-st.caption("© 2023 NF Fitness - AI-Powered Fitness Application")
+st.caption("© 2023 NemFit - Applicazione Fitness con Intelligenza Artificiale")
