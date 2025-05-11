@@ -1,5 +1,7 @@
 import streamlit as st
 import pandas as pd
+import random
+import plotly.express as px
 from utils.database import (
     get_all_exercises, 
     get_exercise_categories, 
@@ -10,17 +12,17 @@ from utils.database import (
 )
 
 def show():
-    st.title("Admin Panel")
+    st.title("Pannello Amministratore")
     
     # Check if user is admin
     is_admin = st.session_state.user.get('logged_in', False) and st.session_state.user.get('username', '') == 'admin'
     
     if not is_admin:
-        st.warning("You must be logged in as an administrator to access this page.")
+        st.warning("Devi effettuare l'accesso come amministratore per accedere a questa pagina.")
         return
     
     # Admin tabs
-    tab1, tab2, tab3, tab4 = st.tabs(["Exercise Management", "Workout Plans", "User Management", "Statistics"])
+    tab1, tab2, tab3, tab4 = st.tabs(["Gestione Esercizi", "Schede di Allenamento", "Gestione Utenti", "Statistiche"])
     
     # Tab 1: Exercise Management
     with tab1:

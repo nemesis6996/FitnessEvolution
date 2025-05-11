@@ -111,8 +111,8 @@ with st.sidebar:
         st.session_state.page_selection = selected
         st.rerun()
 
-# Main content based on selection
-if selected == "Home":
+# Main content based on navigation selection
+if st.session_state.page_selection == "Home":
     st.title("Benvenuto in NemFit")
     
     # Main columns for home page
@@ -237,27 +237,27 @@ if selected == "Home":
         *- Marco S.*
         """)
 
-elif selected == "Esercizi":
+elif st.session_state.page_selection == "Esercizi":
     import pages.exercises
     pages.exercises.show()
 
-elif selected == "Schede Allenamento":
+elif st.session_state.page_selection == "Schede Allenamento":
     import pages.workout_plans
     pages.workout_plans.show()
 
-elif selected == "Profilo":
+elif st.session_state.page_selection == "Profilo":
     import pages.profile
     pages.profile.show()
 
-elif selected == "Progressi":
+elif st.session_state.page_selection == "Progressi":
     import pages.progress
     pages.progress.show()
 
-elif selected == "Nemesis AI":
+elif st.session_state.page_selection == "Nemesis AI":
     import pages.nemesis
     pages.nemesis.show()
 
-elif selected == "Pannello Admin":
+elif st.session_state.page_selection == "Pannello Admin":
     import pages.admin
     pages.admin.show()
 

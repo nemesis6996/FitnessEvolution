@@ -244,7 +244,8 @@ def show():
             
             # Count workouts by week
             workout_df['week'] = workout_df['date'].dt.isocalendar().week
-            weekly_counts = workout_df.groupby('week').size().reset_index(name='count')
+            weekly_counts = workout_df.groupby('week').size().reset_index()
+            weekly_counts.columns = ['week', 'count']
             
             # Create bar chart
             fig = px.bar(
