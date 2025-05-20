@@ -2,5 +2,5 @@ streamlit
 pandas
 plotly
 requests
-# Aggiungi qui altre dipendenze specifiche del tuo progetto se necessario
+uv python pin 3.11
 
